@@ -145,9 +145,9 @@ $$O(k) \leq O(2^n) = o(2^{-n/(1+\eps)}).$$
 Now, $2^n \leq k < 2^{n+1}$ implies $n \leq \log_2 k < n+1$, so $n = \lfloor \log_2 k \rfloor$. Thus:
 $$O(k) = o\left(2^{-\lfloor \log_2 k \rfloor/(1+\eps)}\right) = o\left(k^{-1/(1+\eps)}\right).$$
 
-Since $\eps > 0$, we have $1/(1+\eps) < 1$, so $k^{-1/(1+\eps)} \cdot \log_2 k \to 0$ as $k \to \infty$. Therefore $O(k)\log_2 k \to 0$.
+Since $\eps > 0$, we have $1/(1+\eps) < 1$. For any $\beta \in (0,1)$, we have $k^{-\beta} \log_2 k \to 0$ as $k \to \infty$ (since $\log_2 k = o(k^\gamma)$ for any $\gamma > 0$, in particular for $\gamma = \beta$). Therefore $O(k)\log_2 k \to 0$.
 
-For the entropy gap: $H_k - k = \log_2(|P_k|/2^k) = \log_2(O(k)\log_2(k+1))$. We have shown that $O(k)\log_2 k \to 0$. Since $\log_2(k+1) \sim \log_2 k$, we also have $O(k)\log_2(k+1) \to 0$. Therefore $\log_2(O(k)\log_2(k+1)) \to \log_2(0^+) = -\infty$, hence $H_k - k \to -\infty$.
+For the entropy gap: $H_k - k = \log_2(|P_k|/2^k) = \log_2(O(k)\log_2(k+1))$. We have shown that $O(k)\log_2 k \to 0$. Since $\log_2(k+1) \sim \log_2 k$, we also have $O(k)\log_2(k+1) \to 0$. As $O(k)\log_2(k+1) \to 0^+$, we have $\log_2(O(k)\log_2(k+1)) \to -\infty$, hence $H_k - k \to -\infty$.
 \end{proof}
 
 \begin{theorem}[Dimension Gap Forces Everything]\label{thm:dimension-gap}
@@ -203,8 +203,8 @@ This measures the polynomial rate of decay in the ``entropy deficiency'' $k - H_
 \begin{proposition}[Exponent Characterization]\label{prop:alpha-char}
 Suppose the $\alpha$-exponent exists as defined in equation \eqref{eq:alpha}. Then:
 \begin{enumerate}
-\item $O(k) \sim C \cdot k^{-\alpha}$ for some constant $C > 0$;
-\item $|P_k| \sim 2^k \cdot C' \cdot k^{-\alpha} \cdot \log_2(k+1)$ for some constant $C' > 0$;
+\item $O(k) \sim C \cdot \frac{k^{-\alpha}}{\log_2 k}$ for some constant $C > 0$;
+\item $|P_k| \sim C' \cdot 2^k \cdot k^{-\alpha}$ for some constant $C' > 0$;
 \item $\sum_{k=1}^\infty O(k) < \infty$ if and only if $\alpha > 1$.
 \end{enumerate}
 \end{proposition}
@@ -216,11 +216,11 @@ This means $\log_2(2^k/|P_k|) \sim \alpha \log_2 k$, so $\log_2(2^k/|P_k|) = \al
 $$\frac{2^k}{|P_k|} = k^\alpha \cdot 2^{o(\log_2 k)} = k^\alpha \cdot k^{o(1)} \sim k^\alpha.$$
 Therefore $|P_k| \sim 2^k k^{-\alpha}$, which gives:
 $$O(k) = \frac{|P_k|}{2^k \log_2(k+1)} \sim \frac{2^k k^{-\alpha}}{2^k \log_2(k+1)} = \frac{k^{-\alpha}}{\log_2(k+1)}.$$
-Since $\log_2(k+1) \sim \log_2 k$, and it is well-known that $\log_2 k = o(k^\beta)$ for any $\beta > 0$, we have $k^{-\alpha}/\log_2(k+1) \sim k^{-\alpha}/\log_2(k)$. The logarithmic factor can be absorbed into the constant, giving $O(k) \sim C k^{-\alpha}$ for some constant $C > 0$.
+Since $\log_2(k+1) \sim \log_2 k$, we have $O(k) \sim k^{-\alpha}/\log_2 k$. Thus $O(k) \sim C \cdot k^{-\alpha}/\log_2 k$ for some constant $C > 0$.
 
-(2) This follows directly from the derivation in part (1).
+(2) From part (1), we have $O(k) = |P_k|/(2^k \log_2(k+1))$ and $|P_k| \sim 2^k k^{-\alpha}$, giving the stated result.
 
-(3) By part (1), $\sum O(k) \sim \sum k^{-\alpha}$, which converges if and only if $\alpha > 1$ by the $p$-test.
+(3) By part (1), $\sum O(k) \sim \sum \frac{k^{-\alpha}}{\log_2 k}$. By the integral test, $\int_2^\infty \frac{x^{-\alpha}}{\log x} dx$ converges if and only if $\alpha > 1$. Therefore $\sum O(k) < \infty$ if and only if $\alpha > 1$.
 \end{proof}
 
 \begin{remark}[On Universality and Regularity]\label{rem:universality}
