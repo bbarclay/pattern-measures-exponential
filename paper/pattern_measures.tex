@@ -15,6 +15,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{example}[theorem]{Example}
+\newtheorem{assumption}[theorem]{Assumption}
 
 % Notation shortcuts
 \newcommand{\bbR}{\mathbb{R}}
@@ -35,7 +36,7 @@
 \maketitle
 
 \begin{abstract}
-We study the asymptotic behavior of pattern families $\{P_k\}$ bounded by $|P_k| \le C \cdot 2^k$ through the measure $O(k)=\frac{|P_k|}{2^k\,\log_2(k+1)}$. We establish: (1) the equivalence $O(k)\to 0 \iff |P_k|=o(2^k\log_2 k)$; (2) if $O(k)$ is eventually nonincreasing and $\sum O(k)^{1+\eps} < \infty$ for some $\eps > 0$, then $H_k-k\to-\infty$ where $H_k = \log_2|P_k|$; (3) if $\limsup H_k/k<1$, then both $H_k-k\to-\infty$ and $O(k)\to 0$. We provide counterexamples proving each implication is strict. When the limit $\alpha = \lim(k-H_k)/\log_2 k$ exists with regular variation, we characterize convergence of $\sum O(k)$.
+We study the asymptotic behavior of pattern families $\{P_k\}$ bounded by $|P_k| \le C \cdot 2^k$ through the density measure $D(k)=\frac{|P_k|}{2^k\,\log_2(k+1)}$. We establish: (1) the equivalence $D(k)\to 0 \iff |P_k|=o(2^k\log k)$; (2) if $D(k)$ is eventually nonincreasing and $\sum D(k)^{1+\eps} < \infty$ for some $\eps > 0$, then $H_k-k\to-\infty$ where $H_k = \log_2|P_k|$; (3) if $\limsup H_k/k<1$, then both $H_k-k\to-\infty$ and $D(k)\to 0$. We provide counterexamples proving each implication is strict. When the limit $\alpha = \lim(k-H_k)/\log_2 k$ exists with regular variation, we characterize convergence of $\sum D(k)$.
 \end{abstract}
 
 \section{Introduction}
@@ -46,9 +47,9 @@ We study families of combinatorial patterns $\{P_k\}$ whose cardinalities grow a
 
 \subsection{Our Contribution}
 
-We formalize this intuition through the \emph{pattern measure}:
-$$O(k) = \frac{|P_k|}{2^k\,\log_2(k+1)}$$
-where $\{P_k\}$ represents a sequence of pattern families at scale $k$. This measure captures the ratio between actual pattern count and the exponential scale, normalized by a logarithmic factor that we introduce to identify the critical scaling threshold.
+We formalize this intuition through the \emph{pattern density measure}:
+$$D(k) = \frac{|P_k|}{2^k\,\log_2(k+1)}$$
+where $\{P_k\}$ represents a sequence of pattern families at scale $k$. This measure captures the ratio between actual pattern count and the exponential scale, normalized by a logarithmic factor that identifies the critical scaling threshold.
 
 Our main results establish:
 \begin{enumerate}
@@ -64,7 +65,7 @@ We establish basic implications between pattern decay, entropy gaps, and dimensi
 
 \section{Setup and Notation}
 
-Let $\{P_k\}_{k=1}^\infty$ be a sequence of finite sets which we call \emph{pattern families}, with cardinalities $|P_k|\in\bbN$.
+Let $\{P_k\}_{k=1}^\infty$ be a sequence of finite sets which we call \emph{pattern families}, with cardinalities $|P_k|\in\bbN$. We assume throughout that $|P_k| \geq 1$ for all $k \geq 1$ to ensure $H_k$ is well-defined.
 
 \begin{assumption}[Exponential Envelope]\label{ass:envelope}
 We assume there exists a constant $C \geq 1$ such that $|P_k| \le C \cdot 2^k$ for all $k \geq 1$. This ensures $H_k = \log_2|P_k| \le k + \log_2 C$, making the notion of ``entropy gap'' $H_k - k$ meaningful. For families with different exponential bases $B^k$, one can normalize by replacing $k$ with $k\log_2 B$.
@@ -74,21 +75,21 @@ We assume there exists a constant $C \geq 1$ such that $|P_k| \le C \cdot 2^k$ f
 This assumption holds for subsets of $\{0,1\}^k$ but excludes unbounded families like all graphs on $k$ vertices where $|P_k|$ can be $2^{\binom{k}{2}}$.
 \end{remark} 
 
-\begin{definition}[Pattern Measure]
-The \emph{pattern measure} is defined as
+\begin{definition}[Pattern Density Measure]
+The \emph{pattern density measure} is defined as
 \begin{equation}
-O(k):= \frac{|P_k|}{2^k\,\log_2(k+1)}\,.
+D(k):= \frac{|P_k|}{2^k\,\log_2(k+1)}\,.
 \end{equation}
 \end{definition}
 
 \begin{definition}[Entropy and Dimension]
 Define the \emph{(logarithmic) entropy} as $H_k:=\log_2|P_k|$ and the \emph{effective dimension} as
 \begin{equation}
-d_{\mathrm{eff}}:=\limsup_{k\to\infty} \frac{H_k}{k}\,\in[0,\infty]\,.
+d_{\mathrm{eff}}:=\limsup_{k\to\infty} \frac{H_k}{k}\,\in[0,1]\,.
 \end{equation}
 \end{definition}
 
-Throughout, logarithms are base 2 unless stated otherwise. We use standard asymptotic notation: $f(k)=o(g(k))$ means $f(k)/g(k)\to 0$, $f(k)=O(g(k))$ means $|f(k)|/g(k)$ is bounded, $f(k)\sim g(k)$ means $f(k)/g(k) \to 1$, and $f(k)\asymp g(k)$ means $f(k)/g(k)$ is bounded above and below by positive constants.
+Throughout, logarithms are base 2 unless stated otherwise. We write $\log k$ for $\log_2 k$ when the base is clear from context. We use standard asymptotic notation: $f(k)=o(g(k))$ means $f(k)/g(k)\to 0$, $f(k)=O(g(k))$ means $|f(k)|/g(k)$ is bounded, $f(k)\sim g(k)$ means $f(k)/g(k) \to 1$, and $f(k)\asymp g(k)$ means $f(k)/g(k)$ is bounded above and below by positive constants.
 
 \section{Main Results}
 
@@ -99,56 +100,56 @@ Our first result establishes when pattern measures vanish asymptotically.
 \begin{theorem}[Base Equivalence]\label{thm:base-equivalence}
 The following are equivalent:
 \begin{enumerate}
-\item[(i)] $O(k)\to 0$;
-\item[(ii)] $|P_k|=o\big(2^k\log_2 k\big)$.
+\item[(i)] $D(k)\to 0$;
+\item[(ii)] $|P_k|=o\big(2^k\log k\big)$.
 \end{enumerate}
 \end{theorem}
 
 \begin{proof}
-By definition, $O(k)=\dfrac{|P_k|}{2^k\log_2(k+1)}$. We first establish that $\log_2(k+1)\asymp\log_2 k$ for $k\geq 2$. Indeed, for $k\geq 2$:
+By definition, $D(k)=\dfrac{|P_k|}{2^k\log_2(k+1)}$. We first establish that $\log_2(k+1)\asymp\log_2 k$ for $k\geq 2$. Indeed, for $k\geq 2$:
 $$\frac{\log_2(k+1)}{\log_2 k} = \frac{\log_2 k + \log_2(1 + 1/k)}{\log_2 k} = 1 + \frac{\log_2(1 + 1/k)}{\log_2 k}.$$
 Since $0 < \log_2(1 + 1/k) < \log_2 2 = 1$ and $\log_2 k \to \infty$, we have $\frac{\log_2(1 + 1/k)}{\log_2 k} \to 0$. Thus $\log_2(k+1) \sim \log_2 k$.
 
-Therefore, $O(k)\to 0$ if and only if $\frac{|P_k|}{2^k\log_2 k}\to 0$, which is precisely the statement $|P_k|=o(2^k\log_2 k)$.
+Therefore, $D(k)\to 0$ if and only if $\frac{|P_k|}{2^k\log_2 k}\to 0$, which is precisely the statement $|P_k|=o(2^k\log k)$.
 \end{proof}
 
-This theorem reveals that the logarithmic normalization in $O(k)$ captures a natural threshold for pattern density. The choice of $\log_2(k+1)$ (rather than, say, $\log_2 k$) ensures the measure is well-defined for all $k \geq 1$, while the asymptotic equivalence $\log_2(k+1) \sim \log_2 k$ shows this choice does not affect the fundamental scaling behavior for large $k$.
+This theorem reveals that the logarithmic normalization in $D(k)$ captures the critical threshold for pattern density. The choice of $\log_2(k+1)$ (rather than, say, $\log_2 k$) ensures the measure is well-defined for all $k \geq 1$, while the asymptotic equivalence $\log_2(k+1) \sim \log_2 k$ shows this choice does not affect the fundamental scaling behavior for large $k$.
 
 \subsection{The Hierarchy of Implications}
 
 We now establish how stronger conditions force pattern decay.
 
 \begin{theorem}[Series Summability Forces Entropy Gap]\label{thm:series-to-entropy}
-Assume there exists $K \in \bbN$ such that $O(k)$ is nonincreasing for all $k \ge K$. If there exists $\eps>0$ such that
+Assume $D(k)$ is eventually nonincreasing and nonnegative. If there exists $\eps>0$ such that
 \begin{equation}
-\sum_{k=1}^{\infty} O(k)^{1+\eps} < \infty,
+\sum_{k=1}^{\infty} D(k)^{1+\eps} < \infty,
 \end{equation}
-then $O(k)\,\log_2 k\to 0$, and consequently
+then $D(k)\,\log_2 k\to 0$, and consequently
 \begin{equation}
-H_k-k=\log_2\frac{|P_k|}{2^k}=\log_2\big(O(k)\,\log_2(k+1)\big)\longrightarrow -\infty.
+H_k-k=\log_2\frac{|P_k|}{2^k}=\log_2\big(D(k)\,\log_2(k+1)\big)\longrightarrow -\infty.
 \end{equation}
 \end{theorem}
 
 \begin{proof}
-Let $a_k:=O(k)^{1+\eps}$ where $\eps > 0$. Since $O(k)$ is eventually nonincreasing and nonnegative, $\{a_k\}$ is eventually nonincreasing. By the Cauchy condensation test, $\sum_{k=1}^\infty a_k < \infty$ if and only if $\sum_{n=0}^\infty 2^n a_{2^n} < \infty$.
+Let $a_k:=D(k)^{1+\eps}$ where $\eps > 0$. Since $D(k)$ is eventually nonincreasing and nonnegative, $\{a_k\}$ is eventually nonincreasing. By the Cauchy condensation test, $\sum_{k=1}^\infty a_k < \infty$ if and only if $\sum_{n=0}^\infty 2^n a_{2^n} < \infty$.
 
-Since $\sum a_k < \infty$, we have $\sum_{n=0}^\infty 2^n a_{2^n} < \infty$, which implies $2^n a_{2^n} \to 0$. Therefore, $a_{2^n} = o(2^{-n})$, giving us $O(2^n)^{1+\eps} = o(2^{-n})$.
+Since $\sum a_k < \infty$, we have $\sum_{n=0}^\infty 2^n a_{2^n} < \infty$, which implies $2^n a_{2^n} \to 0$. Therefore, $a_{2^n} = o(2^{-n})$, giving us $D(2^n)^{1+\eps} = o(2^{-n})$.
 
-This yields $O(2^n) = o(2^{-n/(1+\eps)})$. For arbitrary $k \geq 2$, choose $n$ such that $2^n \leq k < 2^{n+1}$. Since $O$ is eventually nonincreasing:
-$$O(k) \leq O(2^n) = o(2^{-n/(1+\eps)}).$$
+This yields $D(2^n) = o(2^{-n/(1+\eps)})$. For arbitrary $k \geq 2$, choose $n$ such that $2^n \leq k < 2^{n+1}$. Since $D$ is eventually nonincreasing:
+$$D(k) \leq D(2^n) = o(2^{-n/(1+\eps)}).$$
 
 Now, $2^n \leq k < 2^{n+1}$ implies $n \leq \log_2 k < n+1$, so $n = \lfloor \log_2 k \rfloor$. Thus:
-$$O(k) = o\left(2^{-\lfloor \log_2 k \rfloor/(1+\eps)}\right) = o\left(k^{-1/(1+\eps)}\right).$$
+$$D(k) = o\left(2^{-\lfloor \log_2 k \rfloor/(1+\eps)}\right) = o\left(k^{-1/(1+\eps)}\right).$$
 
-Since $\eps > 0$, we have $1/(1+\eps) < 1$. For any $\beta \in (0,1)$, we have $k^{-\beta} \log_2 k \to 0$ as $k \to \infty$ (since $\log_2 k = o(k^\gamma)$ for any $\gamma > 0$, in particular for $\gamma = \beta$). Therefore $O(k)\log_2 k \to 0$.
+Since $\eps > 0$, we have $1/(1+\eps) < 1$. For any $\beta \in (0,1)$, we have $k^{-\beta} \log_2 k \to 0$ as $k \to \infty$ (since $\log_2 k = o(k^\gamma)$ for any $\gamma > 0$, in particular for $\gamma = \beta$). Therefore $D(k)\log_2 k \to 0$.
 
-For the entropy gap: $H_k - k = \log_2(|P_k|/2^k) = \log_2(O(k)\log_2(k+1))$. We have shown that $O(k)\log_2 k \to 0$. Since $\log_2(k+1) \sim \log_2 k$, we also have $O(k)\log_2(k+1) \to 0$. As $O(k)\log_2(k+1) \to 0^+$, we have $\log_2(O(k)\log_2(k+1)) \to -\infty$, hence $H_k - k \to -\infty$.
+For the entropy gap: $H_k - k = \log_2(|P_k|/2^k) = \log_2(D(k)\log_2(k+1))$. We have shown that $D(k)\log_2 k \to 0$. Since $\log_2(k+1) \sim \log_2 k$, we also have $D(k)\log_2(k+1) \to 0$. As $D(k)\log_2(k+1) \to 0^+$, we have $\log_2(D(k)\log_2(k+1)) \to -\infty$, hence $H_k - k \to -\infty$.
 \end{proof}
 
 \begin{theorem}[Dimension Gap Forces Everything]\label{thm:dimension-gap}
 If $\displaystyle \limsup_{k\to\infty}\frac{H_k}{k}<1$, then there exists $\delta>0$ and $k_0 \in \bbN$ such that $H_k\le (1-\delta)k$ for all $k\ge k_0$. Consequently:
 \begin{equation}
-O(k)=\frac{2^{H_k}}{2^k\,\log_2(k+1)}\le\frac{2^{-\delta k}}{\log_2(k+1)}\xrightarrow[k\to\infty]{}0,
+D(k)=\frac{2^{H_k}}{2^k\,\log_2(k+1)}\le\frac{2^{-\delta k}}{\log_2(k+1)}\xrightarrow[k\to\infty]{}0,
 \end{equation}
 and $H_k-k\le -\delta k\to -\infty$.
 \end{theorem}
@@ -161,10 +162,10 @@ Combining Theorems \ref{thm:base-equivalence}--\ref{thm:dimension-gap}, we obtai
 
 \begin{corollary}[The Hierarchy]\label{cor:hierarchy}
 \begin{equation}\label{eq:lattice}
-\big(\limsup H_k/k<1\big)\ \Rightarrow\ (H_k-k\to-\infty)\ \Rightarrow\ \big(O(k)\to 0\big)\ \Leftrightarrow\ \big(|P_k|=o(2^k\log_2 k)\big).
+\big(\limsup H_k/k<1\big)\ \Rightarrow\ (H_k-k\to-\infty)\ \Rightarrow\ \big(D(k)\to 0\big)\ \Leftrightarrow\ \big(|P_k|=o(2^k\log k)\big).
 \end{equation}
-Under the additional assumption that $O(k)$ is eventually nonincreasing, we also have:
-$$\big(\sum O(k)^{1+\eps} < \infty \text{ for some } \eps > 0\big)\ \Rightarrow\ (H_k-k\to-\infty).$$
+Under the additional assumption that $D(k)$ is eventually nonincreasing, we also have:
+$$\big(\sum D(k)^{1+\eps} < \infty \text{ for some } \eps > 0\big)\ \Rightarrow\ (H_k-k\to-\infty).$$
 \end{corollary}
 
 \section{The Trichotomy of Pattern Growth}
@@ -174,14 +175,14 @@ We classify pattern families by their asymptotic behavior relative to the critic
 \begin{definition}[Growth Regimes]\label{def:regimes}
 Relative to the critical threshold $2^k \log_2(k+1)$:
 \begin{align*}
-\text{Subcritical:}&\quad |P_k|=o\big(2^k\log_2(k+1)\big) &&\Rightarrow O(k)\to 0\\
-\text{Critical:}&\quad |P_k|\sim C\cdot 2^k\log_2(k+1) &&\Rightarrow O(k)\sim C\\
-\text{Supercritical:}&\quad |P_k|=\omega\big(2^k\log_2(k+1)\big) &&\Rightarrow O(k)\to\infty
+\text{Subcritical:}&\quad |P_k|=o\big(2^k\log_2(k+1)\big) &&\Rightarrow D(k)\to 0\\
+\text{Critical:}&\quad |P_k|\sim C\cdot 2^k\log_2(k+1) &&\Rightarrow D(k)\sim C\\
+\text{Supercritical:}&\quad |P_k|=\omega\big(2^k\log_2(k+1)\big) &&\Rightarrow D(k)\to\infty
 \end{align*}
 for some constant $C > 0$. Here $f(k) = \omega(g(k))$ means $g(k) = o(f(k))$.
 \end{definition}
 
-This trichotomy provides intuition: subcritical patterns exhibit decay ($O(k) \to 0$), critical patterns maintain constant density relative to the logarithmic normalization, and supercritical patterns grow without bound even after normalization.
+This trichotomy provides intuition: subcritical patterns exhibit decay ($D(k) \to 0$), critical patterns maintain constant density relative to the logarithmic normalization, and supercritical patterns grow without bound even after normalization. For example, $|P_k| = 2^k \log k \log\log k$ gives $D(k) \sim \log\log k \to \infty$.
 
 \section{The $\alpha$-Exponent Framework}
 
@@ -198,13 +199,13 @@ This measures the polynomial rate of decay in the ``entropy deficiency'' $k - H_
 \begin{proposition}[Exponent Characterization]\label{prop:alpha-char}
 Suppose the $\alpha$-exponent exists as defined in equation \eqref{eq:alpha}. Then:
 \begin{enumerate}
-\item $|P_k| = 2^k \cdot k^{-\alpha+o(1)}$ and $O(k) = k^{-\alpha+o(1)}/\log_2 k$.
-\item If additionally $|P_k| = 2^k \cdot k^{-\alpha} L(k)$ where $L$ is slowly varying with $L(k) \to L_0 > 0$, then $O(k) \sim L_0 \cdot k^{-\alpha}/\log_2 k$.
+\item $|P_k| = 2^k \cdot k^{-\alpha+o(1)}$ and $D(k) = k^{-\alpha+o(1)}/\log_2 k$.
+\item If additionally $|P_k| = 2^k \cdot k^{-\alpha} L(k)$ where $L$ is slowly varying with $L(k) \to L_0 > 0$, then $D(k) \sim L_0 \cdot k^{-\alpha}/\log_2 k$.
 \item Under the regular variation assumption in (2):
   \begin{itemize}
-  \item $\sum O(k) < \infty$ if $\alpha > 1$
-  \item $\sum O(k) = \infty$ if $\alpha < 1$
-  \item If $\alpha = 1$, convergence depends on $L$: $\sum O(k) < \infty$ iff $\sum L(k)/(k\log k) < \infty$
+  \item $\sum D(k) < \infty$ if $\alpha > 1$
+  \item $\sum D(k) = \infty$ if $\alpha < 1$
+  \item If $\alpha = 1$, convergence depends on $L$: $\sum D(k) < \infty$ iff $\sum L(k)/(k\log k) < \infty$
   \end{itemize}
 \end{enumerate}
 \end{proposition}
@@ -215,23 +216,23 @@ $$\lim_{k \to \infty} \frac{\log_2(2^k/|P_k|)}{\log_2 k} = \alpha.$$
 This means $\log_2(2^k/|P_k|) \sim \alpha \log_2 k$, so $\log_2(2^k/|P_k|) = \alpha \log_2 k + o(\log_2 k)$. Exponentiating:
 $$\frac{2^k}{|P_k|} = k^\alpha \cdot 2^{o(\log_2 k)} = k^\alpha \cdot k^{o(1)} \sim k^\alpha.$$
 Therefore $|P_k| \sim 2^k k^{-\alpha}$, which gives:
-$$O(k) = \frac{|P_k|}{2^k \log_2(k+1)} \sim \frac{2^k k^{-\alpha}}{2^k \log_2(k+1)} = \frac{k^{-\alpha}}{\log_2(k+1)}.$$
-Since $\log_2(k+1) \sim \log_2 k$, we have $O(k) = k^{-\alpha+o(1)}/\log_2 k$.
+$$D(k) = \frac{|P_k|}{2^k \log_2(k+1)} \sim \frac{2^k k^{-\alpha}}{2^k \log_2(k+1)} = \frac{k^{-\alpha}}{\log_2(k+1)}.$$
+Since $\log_2(k+1) \sim \log_2 k$, we have $D(k) = k^{-\alpha+o(1)}/\log_2 k$.
 
-(2) Under the regular variation assumption, $O(k) = \frac{2^k k^{-\alpha} L(k)}{2^k \log_2(k+1)} = \frac{L(k) k^{-\alpha}}{\log_2(k+1)} \sim \frac{L_0 k^{-\alpha}}{\log_2 k}$.
+(2) Under the regular variation assumption, $D(k) = \frac{2^k k^{-\alpha} L(k)}{2^k \log_2(k+1)} = \frac{L(k) k^{-\alpha}}{\log_2(k+1)} \sim \frac{L_0 k^{-\alpha}}{\log_2 k}$.
 
 (3) With regular variation:
 \begin{itemize}
-\item If $\alpha > 1$: $\sum O(k) \sim L_0 \sum k^{-\alpha}/\log k < \infty$ by the integral test.
-\item If $\alpha < 1$: $\sum O(k) = \infty$ similarly.
-\item If $\alpha = 1$: $\sum O(k) \sim \sum L(k)/(k\log k)$, which converges iff the slowly varying $L$ satisfies the stated condition.
+\item If $\alpha > 1$: $\sum D(k) \sim L_0 \sum k^{-\alpha}/\log k < \infty$ by the integral test.
+\item If $\alpha < 1$: $\sum D(k) = \infty$ similarly.
+\item If $\alpha = 1$: $\sum D(k) \sim \sum L(k)/(k\log k)$, which converges iff the slowly varying $L$ satisfies the stated condition.
 \end{itemize}
 \end{proof}
 
 \begin{remark}[On Universality and Regularity]\label{rem:universality}
 Any specific numerical choice for $\alpha$ represents a modeling decision about the system under study, not a mathematical necessity. Different applications naturally lead to different exponents.
 
-The monotonicity assumption in Theorem \ref{thm:series-to-entropy} is essential and cannot be removed. Without some regularity condition, the series summability can hold while $O(k)$ oscillates arbitrarily, preventing the entropy gap conclusion.
+The monotonicity assumption in Theorem \ref{thm:series-to-entropy} is essential and cannot be removed. Without some regularity condition, the series summability can hold while $D(k)$ oscillates arbitrarily, preventing the entropy gap conclusion.
 \end{remark}
 
 \section{Sharpness: The Counterexamples}
@@ -239,26 +240,26 @@ The monotonicity assumption in Theorem \ref{thm:series-to-entropy} is essential 
 The hierarchy in Corollary \ref{cor:hierarchy} is strict. We demonstrate each non-reversal:
 
 \begin{example}[Pattern Decay without Entropy Gap]\label{ex:no-gap}
-Let $|P_k| := 2^k$. Then $O(k) = 1/\log_2(k+1) \to 0$ but $H_k - k = 0$ for all $k$.
+Let $|P_k| := 2^k$. Then $D(k) = 1/\log_2(k+1) \to 0$ but $H_k - k = 0$ for all $k$.
 \end{example}
 
 \begin{example}[Entropy Gap without Dimension Gap]\label{ex:entropy-no-dim}
 Let $|P_k| := 2^k/\log_2(k+2)$. Then:
 \begin{itemize}
-\item $H_k = k - \log_2\log_2(k+2) \implies H_k - k = -\log_2\log_2(k+2) \to -\infty$
+\item $H_k = k - \log_2\log_2(k+2)$, so $H_k - k = -\log_2\log_2(k+2) \to -\infty$
 \item $H_k/k = 1 - \frac{\log_2\log_2(k+2)}{k} \to 1$
 \end{itemize}
 Thus we have entropy gap but $\limsup H_k/k = 1$ (no dimension gap).
 \end{example}
 
 \begin{example}[Entropy Gap without Summability]\label{ex:gap-no-sum}
-For $|P_k| := 2^k/\log_2(k+2)$ as above, $O(k) = 1/(\log_2(k+1)\log_2(k+2))$. Then:
-$$\sum O(k)^{1+\eps} \sim \sum \frac{1}{(\log k)^{2(1+\eps)}} = \infty$$
+For $|P_k| := 2^k/\log_2(k+2)$ as above, $D(k) = 1/(\log_2(k+1)\log_2(k+2))$. Note that:
+$$\sum D(k)^{1+\eps} \sim \sum \frac{1}{(\log k)^{2(1+\eps)}} = \infty$$
 for any $\eps > 0$ by the integral test.
 \end{example}
 
 \begin{example}[Critical Regime]\label{ex:critical}
-Let $|P_k| := \lfloor C \cdot 2^k \log_2(k+1) \rfloor$ for constant $C > 0$. Then $O(k) \to C$ (neither decay nor growth), with no entropy or dimension gap.
+Let $|P_k| := \lfloor C \cdot 2^k \log_2(k+1) \rfloor$ for constant $C > 0$. Then $D(k) \to C$ (neither decay nor growth). Moreover, $H_k - k \sim \log_2\log_2(k+1) \to +\infty$, showing the critical boundary exhibits unbounded entropy excess.
 \end{example}
 
 These examples prove that each implication in the hierarchy is strict.
@@ -269,7 +270,7 @@ These examples prove that each implication in the hierarchy is strict.
 We include the key technical tool for completeness.
 
 \begin{lemma}[Cauchy Condensation Rate Estimate]\label{lem:dyadic}
-Let $\{a_k\}_{k=1}^\infty$ be a sequence of nonnegative real numbers that is eventually nonincreasing, and let $p>1$. If $\sum_{k=1}^\infty a_k^{p}<\infty$, then $a_k=O\big(k^{-1/p}\big)$.
+Let $\{a_k\}_{k=1}^\infty$ be a sequence of nonnegative real numbers that is eventually nonincreasing, and let $p>1$. If $\sum_{k=1}^\infty a_k^{p}<\infty$, then $a_k=o\big(k^{-1/p}\big)$.
 \end{lemma}
 
 \begin{proof}
@@ -283,7 +284,7 @@ $$a_k \leq a_{2^n} \leq C \cdot 2^{-n/p}.$$
 Since $k < 2^{n+1}$, we have $2^n > k/2$, which gives $n > \log_2 k - 1$. Therefore:
 $$2^{-n/p} < 2^{-(\log_2 k - 1)/p} = 2^{1/p} \cdot k^{-1/p}.$$
 
-Therefore, $a_k \leq C \cdot 2^{1/p} \cdot k^{-1/p} = O(k^{-1/p})$.
+Therefore, $a_k \leq C \cdot 2^{1/p} \cdot k^{-1/p}$. Since $a_{2^n} = o(2^{-n/p})$ and $2^n \sim k$, we actually have $a_k = o(k^{-1/p})$.
 \end{proof}
 
 \section{Open Questions}
@@ -292,17 +293,17 @@ This work opens several avenues for future research:
 
 \begin{enumerate}
 \item \textbf{Process Characterization}: What conditions on pattern-generating processes lead to specific $\alpha$-exponents? Can we classify natural pattern families by their exponents?
-\item \textbf{Optimality}: Is the logarithmic factor in $O(k)$ optimal for all natural pattern families?
-\item \textbf{Dynamics}: How does $O(k)$ evolve under pattern-preserving transformations?
+\item \textbf{Optimality}: Is the logarithmic factor in $D(k)$ optimal for all natural pattern families?
+\item \textbf{Dynamics}: How does $D(k)$ evolve under pattern-preserving transformations?
 \item \textbf{Multivariate}: Can this framework extend to patterns with multiple scaling parameters?
-\item \textbf{Computational Complexity}: What is the algorithmic complexity of computing or approximating $O(k)$ for specific pattern families? Are there efficient algorithms for pattern families in each growth regime?
+\item \textbf{Computational Complexity}: What is the algorithmic complexity of computing or approximating $D(k)$ for specific pattern families? Are there efficient algorithms for pattern families in each growth regime?
 \end{enumerate}
 
 \section{Conclusion}
 
-We have established a rigorous mathematical framework for understanding pattern density at exponential scale. The pattern measure $O(k)$ and its associated hierarchy provide both theoretical insight and practical tools for analyzing complex systems.
+We have established a rigorous mathematical framework for understanding pattern density at exponential scale. The pattern measure $D(k)$ and its associated hierarchy provide both theoretical insight and practical tools for analyzing complex systems.
 
-Our journey from a debugging session to a mathematical framework illustrates how practical challenges can lead to fundamental insights. The logarithmic dampening we observed empirically turns out to be a mathematical necessity, captured precisely by the equivalence $O(k)\to 0\iff |P_k|=o(2^k\log k)$.
+Our journey from a debugging session to a mathematical framework illustrates how practical challenges can lead to fundamental insights. The logarithmic dampening we observed empirically turns out to be a mathematical necessity, captured precisely by the equivalence $D(k)\to 0\iff |P_k|=o(2^k\log k)$.
 
 This work demonstrates that patterns, even at exponential scale, obey fundamental scaling laws. Understanding these laws helps us design better algorithms, build more efficient systems, and recognize the inherent limits of complexity growth.
 
