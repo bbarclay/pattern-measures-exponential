@@ -51,7 +51,7 @@ Consider a thought experiment: if you enumerate all possible binary patterns of 
 
 We formalize this intuition through the \emph{pattern measure}:
 $$O(k) = \frac{|P_k|}{2^k\,\log_2(k+1)}$$
-where $\{P_k\}$ represents a sequence of pattern families at scale $k$. This measure captures the ratio between actual pattern count and the exponential scale, normalized by a logarithmic factor that emerges naturally from our analysis.
+where $\{P_k\}$ represents a sequence of pattern families at scale $k$. This measure captures the ratio between actual pattern count and the exponential scale, normalized by a logarithmic factor that we introduce to identify the critical scaling threshold.
 
 Our main results establish:
 \begin{enumerate}
@@ -105,7 +105,7 @@ Our first result establishes when pattern measures vanish asymptotically.
 The following are equivalent:
 \begin{enumerate}
 \item[(i)] $O(k)\to 0$;
-\item[(ii)] $|P_k|=o\big(2^k\log k\big)$.
+\item[(ii)] $|P_k|=o\big(2^k\log_2 k\big)$.
 \end{enumerate}
 \end{theorem}
 
@@ -114,7 +114,7 @@ By definition, $O(k)=\dfrac{|P_k|}{2^k\log_2(k+1)}$. We first establish that $\l
 $$\frac{\log_2(k+1)}{\log_2 k} = \frac{\log_2 k + \log_2(1 + 1/k)}{\log_2 k} = 1 + \frac{\log_2(1 + 1/k)}{\log_2 k}.$$
 Since $0 < \log_2(1 + 1/k) < \log_2 2 = 1$ and $\log_2 k \to \infty$, we have $\frac{\log_2(1 + 1/k)}{\log_2 k} \to 0$. Thus $\log_2(k+1) \sim \log_2 k$.
 
-Therefore, $O(k)\to 0$ if and only if $\frac{|P_k|}{2^k\log_2 k}\to 0$, which is precisely the statement $|P_k|=o(2^k\log_2 k)$. Since $\log_2 k = \frac{\log k}{\log 2}$, this is equivalent to $|P_k|=o(2^k\log k)$.
+Therefore, $O(k)\to 0$ if and only if $\frac{|P_k|}{2^k\log_2 k}\to 0$, which is precisely the statement $|P_k|=o(2^k\log_2 k)$.
 \end{proof}
 
 This theorem reveals that the logarithmic normalization in $O(k)$ captures a natural threshold for pattern density. The choice of $\log_2(k+1)$ (rather than, say, $\log_2 k$) ensures the measure is well-defined for all $k \geq 1$, while the asymptotic equivalence $\log_2(k+1) \sim \log_2 k$ shows this choice does not affect the fundamental scaling behavior for large $k$.
@@ -147,7 +147,7 @@ $$O(k) = o\left(2^{-\lfloor \log_2 k \rfloor/(1+\eps)}\right) = o\left(k^{-1/(1+
 
 Since $\eps > 0$, we have $1/(1+\eps) < 1$, so $k^{-1/(1+\eps)} \cdot \log_2 k \to 0$ as $k \to \infty$. Therefore $O(k)\log_2 k \to 0$.
 
-For the entropy gap: $H_k - k = \log_2(|P_k|/2^k) = \log_2(O(k)\log_2(k+1))$. Since $O(k) \to 0$ and $\log_2(k+1) \to \infty$, but $O(k)\log_2 k \to 0$, we have $O(k)\log_2(k+1) \to 0$, hence $H_k - k \to -\infty$.
+For the entropy gap: $H_k - k = \log_2(|P_k|/2^k) = \log_2(O(k)\log_2(k+1))$. We have shown that $O(k)\log_2 k \to 0$. Since $\log_2(k+1) \sim \log_2 k$, we also have $O(k)\log_2(k+1) \to 0$. Therefore $\log_2(O(k)\log_2(k+1)) \to \log_2(0^+) = -\infty$, hence $H_k - k \to -\infty$.
 \end{proof}
 
 \begin{theorem}[Dimension Gap Forces Everything]\label{thm:dimension-gap}
@@ -159,7 +159,7 @@ and $H_k-k\le -\delta k\to -\infty$.
 \end{theorem}
 
 \begin{proof}
-The hypothesis gives $\delta>0$ with $\limsup H_k/k\le 1-\delta$. Thus for large $k$, we have $H_k\le (1-\delta)k$, yielding $|P_k|=2^{H_k}\le 2^{(1-\delta)k}$. The claimed bounds follow immediately.
+Since $\limsup_{k\to\infty} H_k/k < 1$, there exists $\delta > 0$ such that $\limsup_{k\to\infty} H_k/k \le 1-\delta$. By definition of $\limsup$, there exists $k_0 \in \bbN$ such that for all $k \ge k_0$, we have $H_k/k \le 1-\delta$, hence $H_k \le (1-\delta)k$. Therefore $|P_k|=2^{H_k}\le 2^{(1-\delta)k}$, and the claimed bounds follow immediately.
 \end{proof}
 
 Combining Theorems \ref{thm:base-equivalence}--\ref{thm:dimension-gap}, we obtain:
@@ -216,7 +216,7 @@ This means $\log_2(2^k/|P_k|) \sim \alpha \log_2 k$, so $\log_2(2^k/|P_k|) = \al
 $$\frac{2^k}{|P_k|} = k^\alpha \cdot 2^{o(\log_2 k)} = k^\alpha \cdot k^{o(1)} \sim k^\alpha.$$
 Therefore $|P_k| \sim 2^k k^{-\alpha}$, which gives:
 $$O(k) = \frac{|P_k|}{2^k \log_2(k+1)} \sim \frac{2^k k^{-\alpha}}{2^k \log_2(k+1)} = \frac{k^{-\alpha}}{\log_2(k+1)}.$$
-Since $\log_2(k+1) \sim \log_2 k \to \infty$ but grows slower than any positive power of $k$, we have $O(k) \sim C k^{-\alpha}$ for some constant $C > 0$.
+Since $\log_2(k+1) \sim \log_2 k$, and it is well-known that $\log_2 k = o(k^\beta)$ for any $\beta > 0$, we have $k^{-\alpha}/\log_2(k+1) \sim k^{-\alpha}/\log_2(k)$. The logarithmic factor can be absorbed into the constant, giving $O(k) \sim C k^{-\alpha}$ for some constant $C > 0$.
 
 (2) This follows directly from the derivation in part (1).
 
@@ -304,7 +304,7 @@ Since the latter series converges, we have $2^n a_{2^n}^p \to 0$, which implies 
 For arbitrary $k \geq 2$, choose $n$ such that $2^n \leq k < 2^{n+1}$. Since $\{a_k\}$ is eventually nonincreasing:
 $$a_k \leq a_{2^n} \leq C \cdot 2^{-n/p}.$$
 
-Since $2^n \leq k$, we have $n \leq \log_2 k$, so $2^{-n/p} \geq 2^{-\log_2 k/p} = k^{-1/p}$. However, we need the opposite inequality. Since $k < 2^{n+1}$, we have $n > \log_2 k - 1$, so:
+Since $k < 2^{n+1}$, we have $2^n > k/2$, which gives $n > \log_2 k - 1$. Therefore:
 $$2^{-n/p} < 2^{-(\log_2 k - 1)/p} = 2^{1/p} \cdot k^{-1/p}.$$
 
 Therefore, $a_k \leq C \cdot 2^{1/p} \cdot k^{-1/p} = O(k^{-1/p})$.
