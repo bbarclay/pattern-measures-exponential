@@ -62,3 +62,8 @@ figures/*.png
 # OS
 .DS_Store
 Thumbs.db
+
+# Push scripts (no longer needed)
+push*.sh
+PUSH*.sh
+quick*.sh
