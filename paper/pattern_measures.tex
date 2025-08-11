@@ -234,27 +234,12 @@ The monotonicity assumption in Theorem \ref{thm:series-to-entropy} is essential 
 The hierarchy in Corollary \ref{cor:hierarchy} cannot be strengthened. We demonstrate this through explicit constructions.
 
 \begin{example}[Decay without Entropy Gap]\label{ex:no-gap}
-Let $|P_k|:=\lceil 2^k\,\log_2 k \rceil$ for $k \geq 2$, and $|P_1| := 1$. Then:
+Let $|P_k| := 2^k$ for all $k \geq 1$ (the maximal pattern family). Then:
 \begin{itemize}
-\item $O(k) = \frac{|P_k|}{2^k\log_2(k+1)} \sim \frac{2^k \log_2 k}{2^k \log_2(k+1)} = \frac{\log_2 k}{\log_2(k+1)} \to 1$ as $k \to \infty$
+\item $O(k) = \frac{2^k}{2^k \log_2(k+1)} = \frac{1}{\log_2(k+1)} \to 0$ as $k \to \infty$
+\item $H_k = \log_2(2^k) = k$, so $H_k - k = 0$ for all $k$
 \end{itemize}
-Wait, this doesn't give decay. Let me correct: Let $|P_k|:=\lceil 2^k/\log_2 k \rceil$ for $k \geq 2$. Then:
-\begin{itemize}
-\item $O(k) = \frac{2^k/\log_2 k}{2^k\log_2(k+1)} = \frac{1}{\log_2 k \cdot \log_2(k+1)} \to 0$
-\item $H_k - k = \log_2(|P_k|/2^k) = \log_2(1/\log_2 k) = -\log_2(\log_2 k) \to -\infty$
-\end{itemize}
-This doesn't work either. Let me use the correct construction: $|P_k|:=\lceil 2^k \log_2 k \rceil$. Then:
-\begin{itemize}
-\item $O(k) \sim \frac{\log_2 k}{\log_2(k+1)} \sim 1$, so $O(k) \not\to 0$.
-\end{itemize}
-Actually, for the correct example: $|P_k| := \lceil 2^k \log_2(k+1) \rceil$. Then $O(k) \sim 1$, not decay.
-
-Correct construction: $|P_k| := 2^k$ (all possible patterns). Then:
-\begin{itemize}
-\item $O(k) = \frac{2^k}{2^k \log_2(k+1)} = \frac{1}{\log_2(k+1)} \to 0$
-\item $H_k = k$, so $H_k - k = 0 \not\to -\infty$
-\end{itemize}
-Thus $O(k)\to 0$ but $H_k-k\not\to-\infty$.
+Thus $O(k) \to 0$ (pattern decay) but $H_k - k = 0 \not\to -\infty$ (no entropy gap). This proves that pattern decay does not imply an entropy gap.
 \end{example}
 
 \begin{example}[Decay without Summability]
