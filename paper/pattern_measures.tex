@@ -23,8 +23,7 @@
 \newcommand{\as}{\quad\text{as }k\to\infty}
 \newcommand{\eps}{\varepsilon}
 
-\title{Pattern Measures at Exponential Scale:\\
-A Corrected Equivalence and Hierarchy}
+\title{Pattern Density at Exponential Scale}
 
 \author{Brandon Barclay\\
 \textit{Independent Researcher}\\
@@ -36,16 +35,14 @@ A Corrected Equivalence and Hierarchy}
 \maketitle
 
 \begin{abstract}
-We introduce a mathematical framework for analyzing pattern density at exponential scale through the pattern measure $O(k)=\frac{|P_k|}{2^k\,\log_2(k+1)}$, where $\{P_k\}$ represents sequences of finite pattern families. We establish a complete hierarchy of implications relating pattern decay, entropy gaps, and effective dimension. Our main results include: (1) the sharp equivalence $O(k)\to 0 \iff |P_k|=o(2^k\log_2 k)$; (2) under eventual monotonicity of $O(k)$, summability $\sum O(k)^{1+\eps} < \infty$ forces entropy gap $H_k-k\to-\infty$; (3) strict dimension gap $\limsup H_k/k<1$ implies both entropy gap and pattern decay. We prove this hierarchy is strict via explicit counterexamples and characterize growth regimes through a trichotomy. The $\alpha$-exponent framework provides polynomial characterizations when they exist. Applications span machine learning, information theory, and algorithmic complexity, with implications for understanding capacity limits and phase transitions in complex systems.
+We study the asymptotic behavior of pattern families $\{P_k\}$ bounded by $|P_k| \le C \cdot 2^k$ through the measure $O(k)=\frac{|P_k|}{2^k\,\log_2(k+1)}$. We establish: (1) the equivalence $O(k)\to 0 \iff |P_k|=o(2^k\log_2 k)$; (2) if $O(k)$ is eventually nonincreasing and $\sum O(k)^{1+\eps} < \infty$ for some $\eps > 0$, then $H_k-k\to-\infty$ where $H_k = \log_2|P_k|$; (3) if $\limsup H_k/k<1$, then both $H_k-k\to-\infty$ and $O(k)\to 0$. We provide counterexamples proving each implication is strict. When the limit $\alpha = \lim(k-H_k)/\log_2 k$ exists with regular variation, we characterize convergence of $\sum O(k)$.
 \end{abstract}
 
 \section{Introduction}
 
 \subsection{Motivation: A Story of Unexpected Patterns}
 
-This investigation began with a practical puzzle. While analyzing the behavior of deep neural networks trained on increasingly complex datasets, we observed a curious phenomenon: as network depth increased exponentially, the diversity of learned patterns didn't follow suit. Instead, there appeared to be a hidden logarithmic factor constraining growth—a ``complexity ceiling'' that no amount of additional parameters could breach.
-
-Consider a thought experiment: if you enumerate all possible binary patterns of length $k$, you get $2^k$ patterns. But how many of these are ``meaningful'' in a given context? Our empirical observations suggested that meaningful patterns grow as $2^k/\text{polylog}(k)$, not the full exponential. This led us to ask: \textit{Is there a fundamental mathematical principle governing pattern density at exponential scale?}
+We study families of combinatorial patterns $\{P_k\}$ whose cardinalities grow at most exponentially. When does $|P_k|$ grow significantly slower than the maximum possible rate? We formalize this through a normalized measure that captures deviation from exponential growth.
 
 \subsection{Our Contribution}
 
@@ -61,22 +58,20 @@ Our main results establish:
 \item A framework for understanding pattern scaling through $\alpha$-exponents
 \end{enumerate}
 
-\subsection{Why This Matters}
+\subsection{Outline}
 
-Beyond pure mathematics, this framework has implications for:
-\begin{itemize}
-\item \textbf{Machine Learning}: Understanding capacity limits and generalization bounds
-\item \textbf{Information Theory}: Characterizing compressibility and entropy scaling
-\item \textbf{Computational Complexity}: Analyzing algorithmic pattern generation
-\item \textbf{Statistical Physics}: Modeling phase transitions in complex systems
-\end{itemize}
+We establish basic implications between pattern decay, entropy gaps, and dimension gaps (Section 3), provide counterexamples showing these implications are strict (Section 6), and characterize polynomial decay rates when they exist (Section 5).
 
 \section{Setup and Notation}
 
-Let $\{P_k\}_{k=1}^\infty$ be a sequence of finite sets which we call \emph{pattern families}, with cardinalities $|P_k|\in\bbN$. We assume throughout that $|P_k| \geq 1$ for all $k \geq 1$ to ensure $H_k$ is well-defined.
+Let $\{P_k\}_{k=1}^\infty$ be a sequence of finite sets which we call \emph{pattern families}, with cardinalities $|P_k|\in\bbN$.
 
-\begin{remark}[Interpretation of Pattern Families]\label{rem:interpretation}
-The sets $P_k$ can represent diverse mathematical objects: binary strings of length $k$, graph patterns on $k$ vertices, polynomial expressions of degree $k$, or feature combinations in $k$-dimensional spaces. The generality of our framework allows application across multiple domains while maintaining mathematical rigor.
+\begin{assumption}[Exponential Envelope]\label{ass:envelope}
+We assume there exists a constant $C \geq 1$ such that $|P_k| \le C \cdot 2^k$ for all $k \geq 1$. This ensures $H_k = \log_2|P_k| \le k + \log_2 C$, making the notion of ``entropy gap'' $H_k - k$ meaningful. For families with different exponential bases $B^k$, one can normalize by replacing $k$ with $k\log_2 B$.
+\end{assumption}
+
+\begin{remark}[Examples]
+This assumption holds for subsets of $\{0,1\}^k$ but excludes unbounded families like all graphs on $k$ vertices where $|P_k|$ can be $2^{\binom{k}{2}}$.
 \end{remark} 
 
 \begin{definition}[Pattern Measure]
@@ -124,7 +119,7 @@ This theorem reveals that the logarithmic normalization in $O(k)$ captures a nat
 We now establish how stronger conditions force pattern decay.
 
 \begin{theorem}[Series Summability Forces Entropy Gap]\label{thm:series-to-entropy}
-Assume $O(k)\ge 0$ is eventually nonincreasing. If there exists $\eps>0$ such that
+Assume there exists $K \in \bbN$ such that $O(k)$ is nonincreasing for all $k \ge K$. If there exists $\eps>0$ such that
 \begin{equation}
 \sum_{k=1}^{\infty} O(k)^{1+\eps} < \infty,
 \end{equation}
@@ -203,9 +198,14 @@ This measures the polynomial rate of decay in the ``entropy deficiency'' $k - H_
 \begin{proposition}[Exponent Characterization]\label{prop:alpha-char}
 Suppose the $\alpha$-exponent exists as defined in equation \eqref{eq:alpha}. Then:
 \begin{enumerate}
-\item $O(k) \sim C \cdot \frac{k^{-\alpha}}{\log_2 k}$ for some constant $C > 0$;
-\item $|P_k| \sim C' \cdot 2^k \cdot k^{-\alpha}$ for some constant $C' > 0$;
-\item $\sum_{k=1}^\infty O(k) < \infty$ if and only if $\alpha > 1$.
+\item $|P_k| = 2^k \cdot k^{-\alpha+o(1)}$ and $O(k) = k^{-\alpha+o(1)}/\log_2 k$.
+\item If additionally $|P_k| = 2^k \cdot k^{-\alpha} L(k)$ where $L$ is slowly varying with $L(k) \to L_0 > 0$, then $O(k) \sim L_0 \cdot k^{-\alpha}/\log_2 k$.
+\item Under the regular variation assumption in (2):
+  \begin{itemize}
+  \item $\sum O(k) < \infty$ if $\alpha > 1$
+  \item $\sum O(k) = \infty$ if $\alpha < 1$
+  \item If $\alpha = 1$, convergence depends on $L$: $\sum O(k) < \infty$ iff $\sum L(k)/(k\log k) < \infty$
+  \end{itemize}
 \end{enumerate}
 \end{proposition}
 
@@ -216,11 +216,16 @@ This means $\log_2(2^k/|P_k|) \sim \alpha \log_2 k$, so $\log_2(2^k/|P_k|) = \al
 $$\frac{2^k}{|P_k|} = k^\alpha \cdot 2^{o(\log_2 k)} = k^\alpha \cdot k^{o(1)} \sim k^\alpha.$$
 Therefore $|P_k| \sim 2^k k^{-\alpha}$, which gives:
 $$O(k) = \frac{|P_k|}{2^k \log_2(k+1)} \sim \frac{2^k k^{-\alpha}}{2^k \log_2(k+1)} = \frac{k^{-\alpha}}{\log_2(k+1)}.$$
-Since $\log_2(k+1) \sim \log_2 k$, we have $O(k) \sim k^{-\alpha}/\log_2 k$. Thus $O(k) \sim C \cdot k^{-\alpha}/\log_2 k$ for some constant $C > 0$.
+Since $\log_2(k+1) \sim \log_2 k$, we have $O(k) = k^{-\alpha+o(1)}/\log_2 k$.
 
-(2) From part (1), we have $O(k) = |P_k|/(2^k \log_2(k+1))$ and $|P_k| \sim 2^k k^{-\alpha}$, giving the stated result.
+(2) Under the regular variation assumption, $O(k) = \frac{2^k k^{-\alpha} L(k)}{2^k \log_2(k+1)} = \frac{L(k) k^{-\alpha}}{\log_2(k+1)} \sim \frac{L_0 k^{-\alpha}}{\log_2 k}$.
 
-(3) By part (1), $\sum O(k) \sim \sum \frac{k^{-\alpha}}{\log_2 k}$. By the integral test, $\int_2^\infty \frac{x^{-\alpha}}{\log x} dx$ converges if and only if $\alpha > 1$. Therefore $\sum O(k) < \infty$ if and only if $\alpha > 1$.
+(3) With regular variation:
+\begin{itemize}
+\item If $\alpha > 1$: $\sum O(k) \sim L_0 \sum k^{-\alpha}/\log k < \infty$ by the integral test.
+\item If $\alpha < 1$: $\sum O(k) = \infty$ similarly.
+\item If $\alpha = 1$: $\sum O(k) \sim \sum L(k)/(k\log k)$, which converges iff the slowly varying $L$ satisfies the stated condition.
+\end{itemize}
 \end{proof}
 
 \begin{remark}[On Universality and Regularity]\label{rem:universality}
@@ -231,62 +236,33 @@ The monotonicity assumption in Theorem \ref{thm:series-to-entropy} is essential 
 
 \section{Sharpness: The Counterexamples}
 
-The hierarchy in Corollary \ref{cor:hierarchy} cannot be strengthened. We demonstrate this through explicit constructions.
+The hierarchy in Corollary \ref{cor:hierarchy} is strict. We demonstrate each non-reversal:
 
-\begin{example}[Decay without Entropy Gap]\label{ex:no-gap}
-Let $|P_k| := 2^k$ for all $k \geq 1$ (the maximal pattern family). Then:
-\begin{itemize}
-\item $O(k) = \frac{2^k}{2^k \log_2(k+1)} = \frac{1}{\log_2(k+1)} \to 0$ as $k \to \infty$
-\item $H_k = \log_2(2^k) = k$, so $H_k - k = 0$ for all $k$
-\end{itemize}
-Thus $O(k) \to 0$ (pattern decay) but $H_k - k = 0 \not\to -\infty$ (no entropy gap). This proves that pattern decay does not imply an entropy gap.
+\begin{example}[Pattern Decay without Entropy Gap]\label{ex:no-gap}
+Let $|P_k| := 2^k$. Then $O(k) = 1/\log_2(k+1) \to 0$ but $H_k - k = 0$ for all $k$.
 \end{example}
 
-\begin{example}[Decay without Summability]
-With the construction $|P_k|:=2^k$ (so $O(k) = 1/\log_2(k+1)$), we have $O(k) \to 0$. For any $\eps>0$:
-$$\sum_{k=2}^{\infty} O(k)^{1+\eps} \sim \sum_{k=2}^{\infty} \frac{1}{(\log_2(k+1))^{1+\eps}} \sim \sum_{k=2}^{\infty} \frac{1}{(\log k)^{1+\eps}}=\infty$$
-by the integral test, since $\int_2^\infty \frac{dx}{(\log x)^{1+\eps}} = \infty$ for any $\eps > 0$.
+\begin{example}[Entropy Gap without Dimension Gap]\label{ex:entropy-no-dim}
+Let $|P_k| := 2^k/\log_2(k+2)$. Then:
+\begin{itemize}
+\item $H_k = k - \log_2\log_2(k+2) \implies H_k - k = -\log_2\log_2(k+2) \to -\infty$
+\item $H_k/k = 1 - \frac{\log_2\log_2(k+2)}{k} \to 1$
+\end{itemize}
+Thus we have entropy gap but $\limsup H_k/k = 1$ (no dimension gap).
 \end{example}
 
-\begin{example}[Decay without Dimension Gap]
-With $|P_k|:=2^k$ (so $H_k = k$):
-\begin{itemize}
-\item $H_k = k$
-\item $H_k/k = 1$
-\end{itemize}
-So $\limsup H_k/k=1$, not $<1$, yet $O(k) = 1/\log_2(k+1) \to 0$.
+\begin{example}[Entropy Gap without Summability]\label{ex:gap-no-sum}
+For $|P_k| := 2^k/\log_2(k+2)$ as above, $O(k) = 1/(\log_2(k+1)\log_2(k+2))$. Then:
+$$\sum O(k)^{1+\eps} \sim \sum \frac{1}{(\log k)^{2(1+\eps)}} = \infty$$
+for any $\eps > 0$ by the integral test.
+\end{example}
+
+\begin{example}[Critical Regime]\label{ex:critical}
+Let $|P_k| := \lfloor C \cdot 2^k \log_2(k+1) \rfloor$ for constant $C > 0$. Then $O(k) \to C$ (neither decay nor growth), with no entropy or dimension gap.
 \end{example}
 
 These examples prove that each implication in the hierarchy is strict.
 
-\section{Applications and Connections}
-
-\subsection{Machine Learning Interpretation}
-
-In deep learning, $P_k$ might represent the set of ``effectively different'' functions a network of depth $k$ can represent. Our results suggest:
-\begin{itemize}
-\item Networks with $O(k)\to 0$ have limited expressive power relative to their size
-\item The entropy gap $H_k-k\to-\infty$ indicates strong implicit regularization
-\item The $\alpha$-exponent characterizes the efficiency-complexity tradeoff
-\end{itemize}
-
-\subsection{Information-Theoretic View}
-
-From an information theory perspective:
-\begin{itemize}
-\item $H_k$ represents the bits needed to specify a pattern
-\item $O(k)$ measures information density relative to maximum entropy
-\item The critical threshold $|P_k|\sim 2^k\log_2(k+1)$ marks a phase transition in compressibility
-\end{itemize}
-
-\subsection{Algorithmic Implications}
-
-For algorithm analysis:
-\begin{itemize}
-\item Subcritical growth suggests efficient pattern enumeration algorithms exist
-\item Critical growth indicates fundamental algorithmic barriers
-\item Supercritical growth implies inherent computational intractability
-\end{itemize}
 
 \section{Technical Lemmas}
 
@@ -348,7 +324,7 @@ The author thanks the anonymous reviewers for their constructive feedback and su
 
 \bibitem{hardy} G.H. Hardy, \emph{Divergent series}, Oxford University Press, 1949.
 
-\bibitem{titchmarsh} E.C. Titchmarsh, \emph{The theory of functions}, 2nd ed., Oxford University Press, 1939.
+\bibitem{bingham} N.H. Bingham, C.M. Goldie, and J.L. Teugels, \emph{Regular Variation}, Cambridge University Press, 1987.
 
 \end{thebibliography}
 
