@@ -1,15 +1,25 @@
 """
-Pattern Measure Core Implementation
-Author: Brandon Barclay
-Date: August 2025
+Pattern Measure Core Implementation.
 
 This module implements the pattern measure O(k) and related functions
 for analyzing pattern density at exponential scale.
+
+Author: Brandon Barclay
+Date: August 2025
 """
 
 import numpy as np
-from typing import Callable, List, Tuple, Optional
-import warnings
+from typing import List, Tuple, Optional
+from core_utils import (
+    compute_pattern_measure,
+    compute_entropy,
+    compute_entropy_gap,
+    compute_effective_dimension,
+    estimate_alpha_exponent,
+    check_series_convergence,
+    safe_log2
+)
+
 
 class PatternMeasure:
     """
@@ -17,6 +27,9 @@ class PatternMeasure:
     
     The pattern measure O(k) = |P_k| / (2^k * log_2(k+1)) captures
     the density of pattern families relative to exponential growth.
+    
+    Attributes:
+        pattern_counts: List where pattern_counts[k] = |P_k|
     """
     
     def __init__(self, pattern_counts: Optional[List[int]] = None):
@@ -27,7 +40,7 @@ class PatternMeasure:
             pattern_counts: List where pattern_counts[k] = |P_k|
         """
         self.pattern_counts = pattern_counts if pattern_counts else []
-        
+    
     def compute_O(self, k: int, P_k: Optional[int] = None) -> float:
         """
         Compute the pattern measure O(k).
@@ -38,16 +51,16 @@ class PatternMeasure:
             
         Returns:
             O(k) = |P_k| / (2^k * log_2(k+1))
+            
+        Raises:
+            ValueError: If no pattern count available for given k
         """
         if P_k is None:
             if k >= len(self.pattern_counts):
                 raise ValueError(f"No pattern count available for k={k}")
             P_k = self.pattern_counts[k]
-            
-        if k <= 0:
-            raise ValueError("k must be positive")
-            
-        return P_k / (2**k * np.log2(k + 1))
+        
+        return compute_pattern_measure(k, P_k=P_k)
     
     def compute_entropy(self, k: int, P_k: Optional[int] = None) -> float:
         """
@@ -59,16 +72,16 @@ class PatternMeasure:
             
         Returns:
             H_k = log_2(|P_k|)
+            
+        Raises:
+            ValueError: If no pattern count available for given k
         """
         if P_k is None:
             if k >= len(self.pattern_counts):
                 raise ValueError(f"No pattern count available for k={k}")
             P_k = self.pattern_counts[k]
-            
-        if P_k <= 0:
-            return float('-inf')
-            
-        return np.log2(P_k)
+        
+        return compute_entropy(P_k)
     
     def compute_entropy_gap(self, k: int, P_k: Optional[int] = None) -> float:
         """
@@ -80,9 +93,16 @@ class PatternMeasure:
             
         Returns:
             H_k - k = log_2(|P_k|/2^k)
+            
+        Raises:
+            ValueError: If no pattern count available for given k
         """
-        H_k = self.compute_entropy(k, P_k)
-        return H_k - k
+        if P_k is None:
+            if k >= len(self.pattern_counts):
+                raise ValueError(f"No pattern count available for k={k}")
+            P_k = self.pattern_counts[k]
+        
+        return compute_entropy_gap(k, P_k)
     
     def effective_dimension(self, k_max: int) -> float:
         """
@@ -93,24 +113,20 @@ class PatternMeasure:
             
         Returns:
             Approximation of d_eff
+            
+        Raises:
+            ValueError: If insufficient pattern counts
         """
-        if not self.pattern_counts or k_max > len(self.pattern_counts):
-            raise ValueError("Insufficient pattern counts")
-            
-        ratios = []
-        for k in range(1, min(k_max, len(self.pattern_counts))):
-            if self.pattern_counts[k] > 0:
-                H_k = np.log2(self.pattern_counts[k])
-                ratios.append(H_k / k)
-                
-        if not ratios:
-            return 0.0
-            
-        # Return maximum of later values (approximating limsup)
-        n = len(ratios)
-        return max(ratios[n//2:]) if n > 1 else ratios[0]
+        if not self.pattern_counts:
+            raise ValueError("No pattern counts available")
+        
+        return compute_effective_dimension(self.pattern_counts, k_max)
     
-    def compute_alpha_exponent(self, k_start: int = 10, k_end: Optional[int] = None) -> Tuple[float, float]:
+    def compute_alpha_exponent(
+        self,
+        k_start: int = 10,
+        k_end: Optional[int] = None
+    ) -> Tuple[float, float]:
         """
         Estimate the alpha-exponent from the pattern counts.
         
@@ -122,46 +138,20 @@ class PatternMeasure:
             
         Returns:
             (alpha_estimate, r_squared) where r_squared measures fit quality
+            
+        Raises:
+            ValueError: If no pattern counts available
         """
         if not self.pattern_counts:
             raise ValueError("No pattern counts available")
-            
-        if k_end is None:
-            k_end = len(self.pattern_counts) - 1
-            
-        k_values = []
-        y_values = []
         
-        for k in range(k_start, min(k_end + 1, len(self.pattern_counts))):
-            if k > 0 and self.pattern_counts[k] > 0:
-                # log_2(2^k/|P_k|) = k - log_2(|P_k|)
-                numerator = k - np.log2(self.pattern_counts[k])
-                denominator = np.log2(k)
-                if denominator > 0:
-                    k_values.append(np.log(k))
-                    y_values.append(numerator / denominator)
-        
-        if len(k_values) < 2:
-            return (0.0, 0.0)
-        
-        # Use later values for better asymptotic estimate
-        n = len(k_values)
-        k_values = k_values[n//2:]
-        y_values = y_values[n//2:]
-        
-        # Estimate alpha as mean of later ratios
-        alpha_est = np.mean(y_values)
-        
-        # Compute R^2 to measure consistency
-        y_mean = np.mean(y_values)
-        ss_tot = np.sum((np.array(y_values) - y_mean)**2)
-        ss_res = np.sum((np.array(y_values) - alpha_est)**2)
-        
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
-        
-        return (alpha_est, r_squared)
+        return estimate_alpha_exponent(self.pattern_counts, k_start, k_end)
     
-    def check_summability(self, epsilon: float = 0.1, k_max: Optional[int] = None) -> Tuple[bool, float]:
+    def check_summability(
+        self,
+        epsilon: float = 0.1,
+        k_max: Optional[int] = None
+    ) -> Tuple[bool, float]:
         """
         Check if sum O(k)^(1+epsilon) converges.
         
@@ -171,195 +161,228 @@ class PatternMeasure:
             
         Returns:
             (appears_convergent, partial_sum)
+            
+        Raises:
+            ValueError: If no pattern counts available
         """
         if not self.pattern_counts:
             raise ValueError("No pattern counts available")
-            
-        if k_max is None:
-            k_max = len(self.pattern_counts) - 1
-            
-        partial_sum = 0
-        last_term = 0
         
-        for k in range(1, min(k_max + 1, len(self.pattern_counts))):
-            O_k = self.compute_O(k)
-            term = O_k ** (1 + epsilon)
-            partial_sum += term
-            last_term = term
-            
-        # Heuristic: convergent if terms are decreasing rapidly
-        appears_convergent = last_term < 1e-6 and k_max > 20
-        
-        return (appears_convergent, partial_sum)
+        return check_series_convergence(self.pattern_counts, epsilon, k_max)
 
 
 class PatternFamily:
     """
     Generate various pattern families for testing and demonstration.
+    
+    This class provides static methods to generate different types of
+    pattern families that exhibit various growth behaviors.
     """
+    
+    @staticmethod
+    def _generate_pattern_counts(
+        k_max: int,
+        formula_func,
+        safe_compute: bool = True
+    ) -> List[int]:
+        """
+        Generic pattern count generator with overflow protection.
+        
+        Args:
+            k_max: Maximum k value
+            formula_func: Function that computes P_k given k
+            safe_compute: If True, limit exponential growth for large k
+            
+        Returns:
+            List of pattern counts
+        """
+        counts = [0]  # P_0 undefined
+        for k in range(1, k_max + 1):
+            try:
+                # Limit exponential computation to prevent overflow
+                k_eff = min(k, 30) if safe_compute else k
+                P_k = formula_func(k, k_eff)
+                counts.append(max(1, int(P_k)))  # Ensure at least 1
+            except (OverflowError, ValueError):
+                counts.append(1)  # Fallback for numerical issues
+        return counts
     
     @staticmethod
     def exponential_log(k_max: int, c: float = 1.0) -> List[int]:
         """
         Generate pattern counts |P_k| = c * 2^k * log(k).
+        
         This is the critical case where O(k) ~ 1/log(k).
+        
+        Args:
+            k_max: Maximum k value
+            c: Multiplicative constant
+            
+        Returns:
+            List of pattern counts
+            
+        Mathematical Context:
+            This family lies at the critical threshold. It has O(k) → 0
+            but exhibits the slowest possible decay rate.
         """
-        counts = [0]  # P_0 undefined
-        for k in range(1, k_max + 1):
-            counts.append(int(c * 2**k * np.log(k + 1)))
-        return counts
+        return PatternFamily._generate_pattern_counts(
+            k_max,
+            lambda k, k_eff: c * 2**k_eff * np.log(k + 1)
+        )
     
     @staticmethod
     def exponential_polylog(k_max: int, alpha: float = 2.0) -> List[int]:
         """
         Generate pattern counts |P_k| = 2^k / (log(k))^alpha.
-        Subcritical if alpha > 0.
+        
+        Subcritical if alpha > 0, with stronger decay for larger alpha.
+        
+        Args:
+            k_max: Maximum k value
+            alpha: Polylogarithmic exponent
+            
+        Returns:
+            List of pattern counts
+            
+        Mathematical Context:
+            The alpha parameter controls the decay strength.
+            Alpha > 1 ensures summability of O(k).
         """
-        counts = [0]
-        for k in range(1, k_max + 1):
-            counts.append(int(2**k / (np.log(k + 1)**alpha)))
-        return counts
+        return PatternFamily._generate_pattern_counts(
+            k_max,
+            lambda k, k_eff: 2**k_eff / (np.log(k + 1)**alpha)
+        )
     
     @staticmethod
     def subexponential(k_max: int, delta: float = 0.1) -> List[int]:
         """
         Generate pattern counts |P_k| = 2^((1-delta)k).
+        
         Has dimension gap with d_eff = 1 - delta < 1.
+        
+        Args:
+            k_max: Maximum k value
+            delta: Dimension gap parameter (0 < delta < 1)
+            
+        Returns:
+            List of pattern counts
+            
+        Mathematical Context:
+            This family exhibits a dimension gap, the strongest condition
+            in our hierarchy, implying all weaker properties.
         """
-        counts = [0]
-        for k in range(1, k_max + 1):
-            counts.append(int(2**((1 - delta) * k)))
-        return counts
+        if not 0 < delta < 1:
+            raise ValueError("delta must be in (0, 1)")
+        
+        return PatternFamily._generate_pattern_counts(
+            k_max,
+            lambda k, k_eff: 2**((1 - delta) * k_eff)
+        )
     
     @staticmethod
     def polynomial_exponential(k_max: int, alpha: float = 1.5) -> List[int]:
         """
         Generate pattern counts |P_k| = 2^k / k^alpha.
+        
+        The alpha-exponent determines convergence properties.
+        
+        Args:
+            k_max: Maximum k value
+            alpha: Polynomial exponent
+            
+        Returns:
+            List of pattern counts
+            
+        Mathematical Context:
+            This family directly exhibits the alpha-exponent framework.
+            Convergence of sum O(k) occurs precisely when alpha > 1.
         """
-        counts = [0]
-        for k in range(1, k_max + 1):
-            counts.append(int(2**k / (k**alpha)))
-        return counts
+        return PatternFamily._generate_pattern_counts(
+            k_max,
+            lambda k, k_eff: 2**k_eff / (k**alpha) if k > 0 else 1
+        )
     
     @staticmethod
     def full_exponential(k_max: int) -> List[int]:
         """
         Generate pattern counts |P_k| = 2^k.
-        Maximal pattern family.
-        """
-        counts = [0]
-        for k in range(1, k_max + 1):
-            counts.append(2**k)
-        return counts
-
-
-def verify_base_equivalence(k_values: List[int], threshold: float = 0.01) -> bool:
-    """
-    Verify Theorem 1: O(k) -> 0 iff |P_k| = o(2^k log k).
-    
-    Args:
-        k_values: Values of k to test
-        threshold: Threshold for "approaching zero"
         
-    Returns:
-        True if the equivalence holds empirically
-    """
-    # Test with |P_k| = 2^k * log(k) / k (should have O(k) -> 0)
-    pm = PatternMeasure()
-    
-    O_values = []
-    ratio_values = []
-    
-    for k in k_values:
-        if k > 1:
-            P_k = int(2**k * np.log(k) / k)
-            O_k = pm.compute_O(k, P_k)
-            O_values.append(O_k)
+        Maximal pattern family with O(k) = constant.
+        
+        Args:
+            k_max: Maximum k value
             
-            # Check if |P_k| / (2^k log k) -> 0
-            ratio = P_k / (2**k * np.log(k))
-            ratio_values.append(ratio)
-    
-    # Both should approach 0
-    O_approaches_zero = O_values[-1] < threshold
-    ratio_approaches_zero = ratio_values[-1] < threshold
-    
-    return O_approaches_zero == ratio_approaches_zero
+        Returns:
+            List of pattern counts
+            
+        Mathematical Context:
+            This represents the maximal possible growth rate,
+            saturating the exponential bound.
+        """
+        return PatternFamily._generate_pattern_counts(
+            k_max,
+            lambda k, k_eff: 2**k_eff
+        )
 
 
-def verify_dimension_gap_implication(delta: float = 0.1, k_max: int = 50) -> bool:
+def demo_pattern_families():
     """
-    Verify Theorem 3: Dimension gap implies entropy gap and O(k) -> 0.
+    Demonstrate different pattern families and their properties.
     
-    Args:
-        delta: Dimension gap parameter
-        k_max: Maximum k to test
-        
-    Returns:
-        True if the implication holds
+    This function showcases the key behaviors of various pattern families
+    in the mathematical framework.
     """
-    # Create pattern family with dimension gap
-    counts = PatternFamily.subexponential(k_max, delta)
-    pm = PatternMeasure(counts)
+    from core_utils import print_section_header, print_subsection, format_scientific
     
-    # Check effective dimension
-    d_eff = pm.effective_dimension(k_max)
-    has_dimension_gap = d_eff < 1 - delta/2  # Should be approximately 1-delta
-    
-    # Check entropy gap
-    entropy_gaps = []
-    for k in range(k_max//2, k_max + 1):
-        gap = pm.compute_entropy_gap(k)
-        entropy_gaps.append(gap)
-    
-    has_entropy_gap = entropy_gaps[-1] < -10  # Should go to -infinity
-    
-    # Check O(k) -> 0
-    O_values = []
-    for k in range(k_max//2, k_max + 1):
-        O_values.append(pm.compute_O(k))
-    
-    O_vanishes = O_values[-1] < 1e-6
-    
-    # Verify implication chain
-    if has_dimension_gap:
-        return has_entropy_gap and O_vanishes
-    return True  # Vacuously true if no dimension gap
-
-
-if __name__ == "__main__":
-    # Demo: Create and analyze different pattern families
-    print("Pattern Measure Analysis Demo")
-    print("=" * 50)
+    print_section_header("Pattern Measure Analysis Demo", 50)
     
     k_max = 30
+    test_k_values = [5, 10, 20, 30]
     
-    # Critical case: |P_k| = 2^k * log(k)
-    print("\n1. Critical Pattern Family: |P_k| = 2^k * log(k)")
+    # Critical case
+    print_subsection("1. Critical Pattern Family: |P_k| = 2^k * log(k)")
     counts = PatternFamily.exponential_log(k_max)
     pm = PatternMeasure(counts)
     
-    for k in [5, 10, 20, 30]:
+    for k in test_k_values:
         O_k = pm.compute_O(k)
         gap = pm.compute_entropy_gap(k)
-        print(f"  k={k:2d}: O(k)={O_k:.6f}, H_k-k={gap:.3f}")
+        print(f"  k={k:2d}: O(k)={format_scientific(O_k, 6)}, H_k-k={gap:+.3f}")
     
     alpha, r2 = pm.compute_alpha_exponent(10, k_max)
     print(f"  Alpha-exponent: {alpha:.3f} (R²={r2:.3f})")
     
     # Subcritical case
-    print("\n2. Subcritical: |P_k| = 2^k / (log k)^2")
+    print_subsection("2. Subcritical: |P_k| = 2^k / (log k)^2")
     counts = PatternFamily.exponential_polylog(k_max, alpha=2.0)
     pm = PatternMeasure(counts)
     
-    for k in [5, 10, 20, 30]:
+    for k in test_k_values:
         O_k = pm.compute_O(k)
-        print(f"  k={k:2d}: O(k)={O_k:.6f}")
+        print(f"  k={k:2d}: O(k)={format_scientific(O_k, 6)}")
     
     converges, sum_val = pm.check_summability(epsilon=0.1, k_max=k_max)
-    print(f"  Sum O(k)^1.1 {'converges' if converges else 'diverges'} (partial sum: {sum_val:.3f})")
+    status = "converges" if converges else "diverges"
+    print(f"  Sum O(k)^1.1 {status} (partial sum: {sum_val:.3f})")
     
-    # Verify theorems
-    print("\n3. Theorem Verification")
-    print(f"  Base equivalence holds: {verify_base_equivalence(list(range(10, 51)))}")
-    print(f"  Dimension gap implication holds: {verify_dimension_gap_implication()}")
+    # Dimension gap case
+    print_subsection("3. Dimension Gap: |P_k| = 2^(0.8k)")
+    counts = PatternFamily.subexponential(k_max, delta=0.2)
+    pm = PatternMeasure(counts)
+    
+    d_eff = pm.effective_dimension(k_max)
+    print(f"  Effective dimension: {d_eff:.3f} < 1")
+    
+    for k in [10, 20, 30]:
+        O_k = pm.compute_O(k)
+        gap = pm.compute_entropy_gap(k)
+        print(f"  k={k:2d}: O(k)={format_scientific(O_k, 3)}, H_k-k={gap:.1f}")
+    
+    print("\nKey Insights:")
+    print("  - Critical family shows slowest decay: O(k) ~ 1/log(k)")
+    print("  - Subcritical families have summable O(k)")
+    print("  - Dimension gap implies exponential suppression")
+
+
+if __name__ == "__main__":
+    demo_pattern_families()

@@ -1,58 +1,91 @@
 """
-Theorem Verification Module
-Author: Brandon Barclay
-Date: August 2025
+Theorem Verification Module.
 
 This module provides rigorous numerical verification of all theorems
 in the paper "Pattern Measures at Exponential Scale".
+
+Author: Brandon Barclay
+Date: August 2025
 """
 
 import numpy as np
-from pattern_measure import PatternMeasure, PatternFamily
-from typing import List, Tuple
 import sys
+from typing import Dict, List, Optional
+from pattern_measure import PatternMeasure, PatternFamily
+from core_utils import (
+    compute_pattern_measure,
+    compute_entropy_gap,
+    print_section_header,
+    print_subsection,
+    format_scientific,
+    safe_log2
+)
 
 class TheoremVerifier:
     """
     Verify all theorems and provide detailed analysis.
+    
+    This class systematically verifies each theorem in the paper
+    through numerical experiments and checks.
     """
     
     def __init__(self, verbose: bool = True):
-        self.verbose = verbose
-        self.results = {}
+        """
+        Initialize the theorem verifier.
         
-    def log(self, message: str):
-        """Print message if verbose mode is on."""
+        Args:
+            verbose: If True, print detailed output during verification
+        """
+        self.verbose = verbose
+        self.results: Dict[str, bool] = {}
+    
+    def log(self, message: str) -> None:
+        """
+        Print message if verbose mode is on.
+        
+        Args:
+            message: Message to potentially print
+        """
         if self.verbose:
             print(message)
     
     def verify_theorem1_base_equivalence(self) -> bool:
         """
-        Verify Theorem 1: O(k) -> 0 iff |P_k| = o(2^k log k)
+        Verify Theorem 1: O(k) -> 0 iff |P_k| = o(2^k log k).
+        
+        Returns:
+            True if verification passes
         """
-        self.log("\n" + "="*60)
-        self.log("THEOREM 1: Base Equivalence")
-        self.log("O(k) -> 0 iff |P_k| = o(2^k log k)")
-        self.log("="*60)
+        if self.verbose:
+            print_section_header("THEOREM 1: Base Equivalence\nO(k) -> 0 iff |P_k| = o(2^k log k)")
         
         test_passed = True
         
         # Test Case 1: |P_k| = 2^k * log(k) / sqrt(k) -> should have O(k) -> 0
-        self.log("\nTest 1: |P_k| = 2^k * log(k) / sqrt(k)")
-        pm = PatternMeasure()
+        if self.verbose:
+            print_subsection("Test 1: |P_k| = 2^k * log(k) / sqrt(k)")
+        
         k_values = [10, 20, 50, 100, 200]
         O_values = []
         ratio_values = []
         
         for k in k_values:
-            P_k = int(2**min(k, 30) * np.log(k) / np.sqrt(k))  # Limit exponential growth
-            O_k = pm.compute_O(k, P_k)
-            ratio = P_k / (2**min(k, 30) * np.log(k)) if k <= 30 else 1/np.sqrt(k)
+            # Use log-space computation for large k
+            if k <= 30:
+                P_k = int(2**k * np.log(k) / np.sqrt(k))
+                O_k = compute_pattern_measure(k, P_k=P_k)
+                ratio = P_k / (2**k * np.log(k))
+            else:
+                # log_2(P_k) = k + log_2(log(k)) - 0.5*log_2(k)
+                log_P_k = k + safe_log2(np.log(k)) - 0.5 * safe_log2(k)
+                O_k = compute_pattern_measure(k, log_P_k=log_P_k)
+                ratio = 1 / np.sqrt(k)
             
             O_values.append(O_k)
             ratio_values.append(ratio)
             
-            self.log(f"  k={k:3d}: O(k)={O_k:.8f}, |P_k|/(2^k log k)={ratio:.8f}")
+            if self.verbose:
+                self.log(f"  k={k:3d}: O(k)={format_scientific(O_k, 8)}, |P_k|/(2^k log k)={format_scientific(ratio, 8)}")
         
         # Check both sequences approach 0
         O_decreasing = all(O_values[i] > O_values[i+1] for i in range(len(O_values)-1))
@@ -65,13 +98,16 @@ class TheoremVerifier:
             test_passed = False
         
         # Test Case 2: |P_k| = 2^k * log(k) -> should have O(k) ~ constant
-        self.log("\nTest 2: |P_k| = 2^k * log(k) [boundary case]")
+        if self.verbose:
+            print_subsection("Test 2: |P_k| = 2^k * log(k) [boundary case]")
+        
         k_values = [10, 20, 30]
         for k in k_values:
-            P_k = int(2**k * np.log(k))
-            O_k = pm.compute_O(k, P_k)
-            ratio = P_k / (2**k * np.log(k))
-            self.log(f"  k={k:2d}: O(k)={O_k:.4f}, ratio={ratio:.4f}")
+            P_k = int(2**min(k, 20) * np.log(k))
+            O_k = compute_pattern_measure(k, P_k=P_k)
+            ratio = P_k / (2**min(k, 20) * np.log(k))
+            if self.verbose:
+                self.log(f"  k={k:2d}: O(k)={O_k:.4f}, ratio={ratio:.4f}")
         
         self.log("\n✓ Theorem 1 verified: Equivalence confirmed")
         self.results['theorem1'] = test_passed
@@ -79,26 +115,25 @@ class TheoremVerifier:
     
     def verify_theorem2_summability(self) -> bool:
         """
-        Verify Theorem 2: Series summability implies entropy gap
+        Verify Theorem 2: Series summability implies entropy gap.
+        
+        Returns:
+            True if verification passes
         """
-        self.log("\n" + "="*60)
-        self.log("THEOREM 2: Series Summability → Entropy Gap")
-        self.log("If O(k) monotone and Σ O(k)^(1+ε) < ∞, then H_k - k → -∞")
-        self.log("="*60)
+        if self.verbose:
+            print_section_header(
+                "THEOREM 2: Series Summability → Entropy Gap\n" +
+                "If O(k) monotone and Σ O(k)^(1+ε) < ∞, then H_k - k → -∞"
+            )
         
         test_passed = True
         
         # Create pattern family with summable O(k)
-        self.log("\nTest: |P_k| = 2^k / k^2 (should have summable O(k)^(1+ε))")
+        if self.verbose:
+            print_subsection("Test: |P_k| = 2^k / k^2 (should have summable O(k)^(1+ε))")
         
         k_max = 50
-        counts = []
-        for k in range(k_max + 1):
-            if k == 0:
-                counts.append(0)
-            else:
-                counts.append(int(2**min(k, 30) / k**2))
-        
+        counts = PatternFamily.polynomial_exponential(k_max, alpha=2.0)
         pm = PatternMeasure(counts)
         
         # Check monotonicity
@@ -137,12 +172,16 @@ class TheoremVerifier:
     
     def verify_theorem3_dimension_gap(self) -> bool:
         """
-        Verify Theorem 3: Dimension gap implies everything
+        Verify Theorem 3: Dimension gap implies everything.
+        
+        Returns:
+            True if verification passes
         """
-        self.log("\n" + "="*60)
-        self.log("THEOREM 3: Dimension Gap → Entropy Gap → O(k) → 0")
-        self.log("If limsup H_k/k < 1, then H_k - k → -∞ and O(k) → 0")
-        self.log("="*60)
+        if self.verbose:
+            print_section_header(
+                "THEOREM 3: Dimension Gap → Entropy Gap → O(k) → 0\n" +
+                "If limsup H_k/k < 1, then H_k - k → -∞ and O(k) → 0"
+            )
         
         test_passed = True
         
@@ -188,26 +227,29 @@ class TheoremVerifier:
     
     def verify_counterexamples(self) -> bool:
         """
-        Verify that the counterexamples show non-reversibility of implications
+        Verify that the counterexamples show non-reversibility of implications.
+        
+        Returns:
+            True if verification passes
         """
-        self.log("\n" + "="*60)
-        self.log("COUNTEREXAMPLES: Showing Strict Hierarchy")
-        self.log("="*60)
+        if self.verbose:
+            print_section_header("COUNTEREXAMPLES: Showing Strict Hierarchy")
         
         test_passed = True
         
         # Counterexample 1: O(k) -> 0 but H_k - k ↛ -∞
-        self.log("\nCounterexample 1: |P_k| = 2^k * log(k)")
-        self.log("Shows: O(k) → 0 but H_k - k → +∞")
+        if self.verbose:
+            print_subsection("Counterexample 1: |P_k| = 2^k * log(k)")
+            self.log("Shows: O(k) → 0 but H_k - k → +∞")
         
         k_values = [5, 10, 20, 30]
-        pm = PatternMeasure()
         
         for k in k_values:
             P_k = int(2**min(k, 20) * np.log(k))
-            O_k = pm.compute_O(k, P_k)
-            gap = pm.compute_entropy_gap(k, P_k)
-            self.log(f"  k={k:2d}: O(k)={O_k:.6f}, H_k-k={gap:.3f}")
+            O_k = compute_pattern_measure(k, P_k=P_k)
+            gap = compute_entropy_gap(k, P_k)
+            if self.verbose:
+                self.log(f"  k={k:2d}: O(k)={format_scientific(O_k, 6)}, H_k-k={gap:.3f}")
         
         # Counterexample 2: O(k) -> 0 but sum diverges
         self.log("\nCounterexample 2: Same |P_k| = 2^k * log(k)")
@@ -243,11 +285,13 @@ class TheoremVerifier:
     
     def verify_alpha_exponent_framework(self) -> bool:
         """
-        Verify the alpha-exponent characterization
+        Verify the alpha-exponent characterization.
+        
+        Returns:
+            True if verification passes
         """
-        self.log("\n" + "="*60)
-        self.log("ALPHA-EXPONENT FRAMEWORK")
-        self.log("="*60)
+        if self.verbose:
+            print_section_header("ALPHA-EXPONENT FRAMEWORK")
         
         test_passed = True
         
@@ -289,11 +333,16 @@ class TheoremVerifier:
     def run_all_verifications(self) -> bool:
         """
         Run all theorem verifications and return overall result.
+        
+        Returns:
+            True if all verifications pass
         """
-        self.log("\n" + "="*70)
-        self.log("   COMPLETE THEOREM VERIFICATION SUITE")
-        self.log("   Pattern Measures at Exponential Scale")
-        self.log("="*70)
+        if self.verbose:
+            print_section_header(
+                "   COMPLETE THEOREM VERIFICATION SUITE\n" +
+                "   Pattern Measures at Exponential Scale",
+                width=70
+            )
         
         all_passed = True
         
@@ -305,31 +354,41 @@ class TheoremVerifier:
         all_passed &= self.verify_alpha_exponent_framework()
         
         # Summary
-        self.log("\n" + "="*70)
-        self.log("VERIFICATION SUMMARY")
-        self.log("="*70)
-        
-        for name, passed in self.results.items():
-            status = "✓ PASSED" if passed else "✗ FAILED"
-            self.log(f"  {name:20s}: {status}")
-        
-        if all_passed:
-            self.log("\n🎉 ALL THEOREMS VERIFIED SUCCESSFULLY!")
-        else:
-            self.log("\n⚠️  Some verifications failed. Check output above.")
+        if self.verbose:
+            print_section_header("VERIFICATION SUMMARY", width=70)
+            
+            for name, passed in self.results.items():
+                status = "✓ PASSED" if passed else "✗ FAILED"
+                self.log(f"  {name:20s}: {status}")
+            
+            if all_passed:
+                self.log("\nALL THEOREMS VERIFIED SUCCESSFULLY!")
+            else:
+                self.log("\nSome verifications failed. Check output above.")
         
         return all_passed
 
 
-def main():
+def main() -> int:
     """
     Main verification routine.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure)
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Verify theorems in Pattern Measures paper')
-    parser.add_argument('--quiet', action='store_true', help='Suppress detailed output')
-    parser.add_argument('--theorem', type=int, help='Verify specific theorem (1, 2, or 3)')
+    parser = argparse.ArgumentParser(
+        description='Verify theorems in Pattern Measures paper'
+    )
+    parser.add_argument(
+        '--quiet', action='store_true',
+        help='Suppress detailed output'
+    )
+    parser.add_argument(
+        '--theorem', type=int,
+        help='Verify specific theorem (1, 2, or 3)'
+    )
     
     args = parser.parse_args()
     
